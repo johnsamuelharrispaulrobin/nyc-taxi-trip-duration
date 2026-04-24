@@ -8,4 +8,3 @@ plotly
 pyarrow
 optuna
 mlflow
-ruff
