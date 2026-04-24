@@ -193,9 +193,6 @@ if __name__ == "__main__":
     joblib.dump(feature_cols, "models/feature_columns.pkl")
     print(f"\nSaved {len(feature_cols)} feature columns to models/feature_columns.pkl")
 
-    y = df["log_trip_duration_seconds"]
-    df = df.drop(columns=["log_trip_duration_seconds"])
-
     print(f"\nFinal feature columns ({len(df.columns)}):")
     print(df.columns.tolist())
 
