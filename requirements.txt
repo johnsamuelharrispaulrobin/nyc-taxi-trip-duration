@@ -5,5 +5,5 @@ xgboost
 optuna
 joblib
 mlflow
-pytest
+pytest>=7.0.0
 ruff
