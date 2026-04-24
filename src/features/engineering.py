@@ -9,24 +9,22 @@ and interaction features based on domain knowledge.
 import time
 import numpy as np
 import pandas as pd
+import joblib
 
 
-def create_features(df: pd.DataFrame) -> pd.DataFrame:
+def create_features(df: pd.DataFrame, inference_mode: bool = False) -> pd.DataFrame:
     """
     Create engineered features from cleaned taxi dataframe.
 
-    Features are designed to capture temporal patterns, spatial relationships,
-    and feature interactions that influence trip duration.
+    Args:
+        df: DataFrame with raw columns (PULocationID, DOLocationID, trip_distance, tpep_pickup_datetime)
+        inference_mode: If True, skips target engineering (no trip_duration_seconds needed).
+                        If False, expects trip_duration_seconds for training target.
     """
     df = df.copy()
 
-    # =============================================================================
-    # TARGET ENGINEERING
-    # Trip duration in seconds is right-skewed; log-transform normalizes the
-    # distribution for better model performance and reduces the influence of
-    # extreme outliers (very long trips).
-    # =============================================================================
-    df["log_trip_duration_seconds"] = np.log1p(df["trip_duration_seconds"])
+    if not inference_mode:
+        df["log_trip_duration_seconds"] = np.log1p(df["trip_duration_seconds"])
 
     # =============================================================================
     # TEMPORAL FEATURES (from tpep_pickup_datetime)
@@ -124,31 +122,79 @@ def select_features(df: pd.DataFrame) -> pd.DataFrame:
         "trip_duration_seconds",
         "pu_zone",
         "do_zone",
-        "pu_do_pair"
+        "pu_do_pair",
+        "PULocationID",
+        "DOLocationID"
     ]
 
     df = df.drop(columns=[c for c in drop_cols if c in df.columns])
 
     categorical_cols = ["pu_borough", "do_borough", "pu_service_zone", "do_service_zone", "VendorID"]
+    cat_mappings = {}
 
     for col in categorical_cols:
         if col in df.columns:
-            df[col] = pd.Categorical(df[col]).codes
+            cat = pd.Categorical(df[col])
+            cat_mappings[col] = {val: code for val, code in zip(cat.categories, cat.codes)}
+            df[col] = cat.codes
+
+    joblib.dump(cat_mappings, "models/category_mappings.pkl")
+    print(f"Saved category mappings to models/category_mappings.pkl")
+
+    return df
+
+
+def encode_for_inference(df: pd.DataFrame, cat_mappings: dict = None) -> pd.DataFrame:
+    """
+    Encode categorical columns using saved mappings for inference.
+
+    Args:
+        df: DataFrame with string/obj categorical columns
+        cat_mappings: Dict of {col: {value: code}}. If None, loads from disk.
+    """
+    if cat_mappings is None:
+        cat_mappings = joblib.load("models/category_mappings.pkl")
+
+    df = df.copy()
+
+    drop_cols = [
+        "tpep_pickup_datetime",
+        "tpep_dropoff_datetime",
+        "trip_duration_seconds",
+        "pu_zone",
+        "do_zone",
+        "pu_do_pair",
+        "PULocationID",
+        "DOLocationID"
+    ]
+    df = df.drop(columns=[c for c in drop_cols if c in df.columns])
+
+    for col, mapping in cat_mappings.items():
+        if col in df.columns:
+            df[col] = df[col].map(mapping)
 
     return df
 
 
 if __name__ == "__main__":
+    import joblib
     start_time = time.time()
 
     df = pd.read_parquet("data/processed/cleaned.parquet")
     print(f"Shape after loading cleaned data: {df.shape}")
 
-    df = create_features(df)
+    df = create_features(df, inference_mode=False)
     print(f"Shape after feature engineering: {df.shape}")
 
     df = select_features(df)
     print(f"Shape after feature selection: {df.shape}")
+
+    feature_cols = [c for c in df.columns if c != "log_trip_duration_seconds"]
+    joblib.dump(feature_cols, "models/feature_columns.pkl")
+    print(f"\nSaved {len(feature_cols)} feature columns to models/feature_columns.pkl")
+
+    y = df["log_trip_duration_seconds"]
+    df = df.drop(columns=["log_trip_duration_seconds"])
 
     print(f"\nFinal feature columns ({len(df.columns)}):")
     print(df.columns.tolist())
