@@ -1,9 +1,11 @@
+streamlit
+xgboost
 pandas
 numpy
 scikit-learn
-xgboost
-optuna
 joblib
+plotly
+pyarrow
+optuna
 mlflow
-pytest>=7.0.0
 ruffplotly
