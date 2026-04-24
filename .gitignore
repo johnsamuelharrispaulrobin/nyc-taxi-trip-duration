@@ -1,0 +1,31 @@
+# Data
+data/raw/
+data/processed/
+*.csv
+*.parquet
+*.zip
+*.gz
+
+# Models
+models/*.pkl
+models/*.joblib
+models/*.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+env/
+*.egg-info/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Environment
+.env
+mlruns/
+
+# OS
+.DS_Store
+Thumbs.db
