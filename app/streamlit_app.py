@@ -240,7 +240,6 @@ def page_explore():
     st.markdown("Analysis based on 50,000 sampled trips from the dataset")
     st.markdown("---")
 
-    import plotly.express as px
 
     df = load_features_sample()
     y_target = load_target_sample()
@@ -505,7 +504,6 @@ def page_predict():
 
 
 def main():
-    import plotly.express as px
 
     page = sidebar()
 

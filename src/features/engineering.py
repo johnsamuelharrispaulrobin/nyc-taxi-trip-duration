@@ -139,7 +139,7 @@ def select_features(df: pd.DataFrame) -> pd.DataFrame:
             df[col] = cat.codes
 
     joblib.dump(cat_mappings, "models/category_mappings.pkl")
-    print(f"Saved category mappings to models/category_mappings.pkl")
+    print("Saved category mappings to models/category_mappings.pkl")
 
     return df
 
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     print(f"\nFinal feature columns ({len(df.columns)}):")
     print(df.columns.tolist())
 
-    print(f"\nSample of 5 rows:")
+    print("\nSample of 5 rows:")
     print(df.head())
 
     nan_mask = df.isna().any()
@@ -206,5 +206,5 @@ if __name__ == "__main__":
 
     df.to_parquet("data/processed/features.parquet")
     elapsed = time.time() - start_time
-    print(f"\nSaved to data/processed/features.parquet")
+    print("\nSaved to data/processed/features.parquet")
     print(f"Elapsed time: {elapsed:.2f}s")
