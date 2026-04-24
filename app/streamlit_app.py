@@ -263,8 +263,8 @@ def page_explore():
             nbins=50, title="Trip Duration Distribution (seconds)",
             labels={"trip_duration_seconds": "Duration (seconds)"}
         )
-        fig.add_vline(x=trip_dur.mean(), line_color="red", annotation_text=f"Mean: {trip_dur.mean():.0f}s")
-        fig.add_vline(x=trip_dur.median(), line_color="green", annotation_text=f"Median: {trip_dur.median():.0f}s")
+        fig.add_vline(x=float(np.mean(trip_dur)), line_color="red", annotation_text=f"Mean: {trip_dur.mean():.0f}s")
+        fig.add_vline(x=float(np.median(trip_dur)), line_color="green", annotation_text=f"Median: {trip_dur.median():.0f}s")
         st.plotly_chart(fig, use_container_width=True)
         st.caption("Right-skewed distribution: mean (1070s) > median (853s). Log transform normalizes this.")
 
