@@ -5,3 +5,5 @@ xgboost
 optuna
 joblib
 mlflow
+pytest
+ruff
