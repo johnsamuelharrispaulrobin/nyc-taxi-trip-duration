@@ -6,4 +6,4 @@ optuna
 joblib
 mlflow
 pytest>=7.0.0
-ruff
+ruffplotly
